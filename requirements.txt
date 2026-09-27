@@ -1,0 +1,48 @@
+# 银行罚单挖掘与合规风险画像 Agent — Python 依赖清单
+# 对应 design/tech_architecture.md v1.3 的技术选型
+# 建议: python -m venv .venv && pip install -r requirements.txt
+# 开发依赖见 requirements-dev.txt
+
+# ---------- 基础 ----------
+python-dateutil>=2.9          # 日期处理(双日期口径)
+pyyaml>=6.0                   # HITL 规则 / taxonomy / 配置文件
+orjson>=3.10                  # 高性能 JSON(schema 契约大量序列化)
+tenacity>=8.4                 # LLM 网关重试(指数退避)
+loguru>=0.7                   # 结构化日志(task_events 之外的运行日志)
+jinja2>=3.1                   # prompt 模板 / 报告模板渲染
+pydantic>=2.7                 # 数据契约核心: LLM 抽取校验 / API schema / Skill 接口
+
+# ---------- 服务与交互层 ----------
+fastapi>=0.111                # 唯一对外契约(任务/HITL/产物/意图路由)
+uvicorn[standard]>=0.30       # ASGI 服务器
+streamlit>=1.36               # 开发测试台(API 的第一个客户端)
+
+# ---------- 数据层 ----------
+sqlalchemy>=2.0               # ORM
+alembic>=1.13                 # 数据库迁移(禁止手改库)
+psycopg[binary]>=3.2          # PostgreSQL 驱动(psycopg3)
+pgvector>=0.3                 # pgvector 向量列支持(案由 embedding / L3 记忆)
+
+# ---------- 模型层 ----------
+openai>=1.40                  # LLM 网关: OpenAI 兼容协议客户端
+                              # (开发期指向公有云 API, 私有化指向 vLLM; 不是只用 OpenAI)
+
+# ---------- 数据采集与解析 ----------
+httpx>=0.27                   # 爬虫 HTTP 客户端(异步)
+selectolax>=0.3               # 高性能 HTML 解析(罚单公示页)
+lxml>=5.2                     # selectolax 后端 / 复杂页面兜底
+
+# ---------- 分析计算(沙箱内执行) ----------
+pandas>=2.2                   # 趋势/对标/画像统计
+numpy>=1.26
+scikit-learn>=1.5             # taxonomy bottom-up 聚类(KMeans 等)
+hdbscan>=0.8                  # 密度聚类(案由归纳主力,自动定簇数)
+
+# ---------- 向量检索(本地 embedding,私有化必需) ----------
+sentence-transformers>=3.0    # bge-m3 / bge-reranker 本地推理
+                              # 注: 仅开发/数据准备环境需要 GPU;
+                              # 生产侧 embedding 也可经 vLLM 托管,本依赖可移除
+
+# ---------- 报告导出 ----------
+markdown>=3.6                 # MD 渲染
+weasyprint>=62.0              # Markdown→PDF(或改用 pandoc 外部命令,二选一)

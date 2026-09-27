@@ -1,0 +1,16 @@
+.venv/
+.env
+.idea/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# 数据与产物(大文件不进仓,库里只存指针+sha256)
+data/raw/
+data/parsed/
+artifacts/
